@@ -1,0 +1,16 @@
+{
+  "name": "cuba-electron-demo",
+  "version": "0.1.0",
+  "main": "main.js",
+  "license": "Apache-2.0",
+  "description": "CUBA Platform Electron Demo",
+  "repository": "https://github.com/cuba-labs/cuba-electron-demo",
+  "dependencies": {
+    "minimal-request-promise": "^1.4.0",
+    "tree-kill": "^1.1.0"
+  },
+  "devDependencies": {
+    "electron": "^1.7.10",
+    "electron-packager": "^10.1.1"
+  }
+}
