@@ -1,7 +1,6 @@
 buildscript {
     ext.cubaVersion = '6.7.6'
     repositories {
-        
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
             credentials {
@@ -221,7 +220,9 @@ configure(electronModule) {
     }
 
     task buildJsWrapper(dependsOn: npm_install) {
+        inputs.dir(project.file('src'))
         outputs.dir(project.file('build/electron-wrapper'))
+
         doLast {
             def osName = System.getProperty('os.name').toLowerCase()
 
@@ -236,27 +237,40 @@ configure(electronModule) {
             if (targetDir.exists()) {
                 targetDir.deleteDir()
             }
-            targetDir.mkdirs()
 
             exec {
                 workingDir 'src'
                 environment 'PATH', System.getenv('PATH') + File.pathSeparator + nodeDir.absolutePath
                 if (isWindows) {
                     commandLine 'cmd.exe', '/c', '"./node_modules/.bin/electron-packager" . ' +
-                            '--out=../build/electron-wrapper/ ' +
+                            '--out=../build/tmp/electron ' +
                             '--ignore=README.md ' +
                             '--ignore=.npmignore ' +
                             '--ignore=.travis.yml" .'
                 } else {
                     commandLine './node_modules/.bin/electron-packager', '.',
-                            '--out=../build/electron-wrapper/',
+                            '--out=../build/tmp/electron ',
                             '--ignore=README.md',
                             '--ignore=.npmignore',
                             '--ignore=.travis.yml'
                 }
             }
+
+            def files = project.file('build/tmp/electron').listFiles()
+            if (files) {
+                for (f in files) {
+                    if (f.name.startsWith('cuba-electron-demo')) {
+                        f.renameTo(targetDir)
+                        break
+                    }
+                }
+            }
         }
     }
+
+    compileJava.enabled = false
+    processResources.enabled = false
+    jar.enabled = false
 
     assemble.dependsOn buildJsWrapper
 }
@@ -291,9 +305,25 @@ task buildUberJar(type: CubaUberJarBuilding) {
     appProperties = ['cuba.automaticDatabaseUpdate' : true]
 }
 
-task buildElectronApp(dependsOn: [buildUberJar, ]) {
+task buildElectronApp(dependsOn: [buildUberJar, electronModule.buildJsWrapper]) {
     outputs.dir project.file('build/electron-app')
-    doLast {
 
+    doLast {
+        def targetDir = project.file('build/electron-app')
+        if (targetDir.exists()) {
+            targetDir.deleteDir()
+        }
+
+        // copy electron
+        copy {
+            from electronModule.file('build/electron-wrapper')
+            into project.file('build/electron-app')
+        }
+
+        // copy uberjar
+        copy {
+            from project.file('build/distributions/uberJar/app.jar')
+            into project.file('build/electron-app/resources/app')
+        }
     }
 }

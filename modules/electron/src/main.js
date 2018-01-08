@@ -1,6 +1,6 @@
 const {app, BrowserWindow} = require('electron');
 
-let win;
+let mainWindow;
 let serverProcess;
 
 function createWindow() {
@@ -32,16 +32,17 @@ function createWindow() {
 
     console.log("Server PID: " + serverProcess.pid);
 
-    let appUrl = 'http://localhost:8080';
+    let appUrl = 'http://localhost:30550/app';
 
     const openWindow = function () {
         mainWindow = new BrowserWindow({
             title: 'Demo',
-            width: 640,
-            height: 480
+            width: 1280,
+            height: 800
         });
 
         mainWindow.loadURL(appUrl);
+        mainWindow.webContents.openDevTools();
 
         mainWindow.on('closed', function () {
             mainWindow = null;
@@ -59,6 +60,8 @@ function createWindow() {
                     serverProcess = null;
 
                     mainWindow.close();
+
+                    app.quit();
                 });
             }
         });
@@ -71,7 +74,7 @@ function createWindow() {
             console.log('Server started!');
             openWindow();
         }, function (response) {
-            console.log('Waiting for the server start...');
+            console.log('Waiting for the server start... ' + response);
 
             setTimeout(function () {
                 startUp();
@@ -91,7 +94,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    if (win === null) {
+    if (mainWindow === null) {
         createWindow()
     }
 });
