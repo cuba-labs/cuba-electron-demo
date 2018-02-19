@@ -36,7 +36,7 @@ function createWindow() {
 
     const openWindow = function () {
         mainWindow = new BrowserWindow({
-            title: 'Demo',
+            title: 'Sales & Customers',
             width: 1280,
             height: 800
         });
