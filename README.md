@@ -28,4 +28,4 @@ This project includes an experimental module `electron`. It enables you to build
 
 ## What is under the hood? 
 
-Read more about this approach here: `TODO`.
+Read more about this approach here: https://www.cuba-platform.com/blog/leveraging-the-power-of-web-UI-for-desktop-front-ends.
